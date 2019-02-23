@@ -48,12 +48,12 @@ struct segtree_t
     ID_t res (ID_t v, ID_t tl, ID_t tr, ID_t l, ID_t r)
     {
         if (l > r)
-            return 0;
+            return (ID_t)1e9;
         if (l == tl && r == tr)
             return t[v];
         ID_t tm = (tl + tr) / 2;
-        return res (v * 2, tl, tm, l, min(r, tm))
-            + res (v * 2 + 1, tm + 1, tr, max(l, tm + 1), r);
+        return min(res (v * 2,       tl,       tm,   l,                min(r, tm   )),
+                   res (v * 2 + 1,   tm + 1,   tr,   max(l, tm + 1),   r           ));
     }
     void update (ID_t v, ID_t tl, ID_t tr, ID_t pos, ID_t change)
     {
@@ -75,6 +75,7 @@ struct LS_res_t
 {
     ID_t time;
     std::vector<ID_t> permut;
+    std::vector<ID_t> tsps;
 };
 
 struct work_t
@@ -123,12 +124,13 @@ LS_res_t LS_algo(workGraph_t G, benches_t Q, ID_t maxtime)
         work_t & cur_w = G[j];
         ID_t time = cur_w.min_time;
         bench_t & cur_b = Q[cur_w.type];
-        while (cur_b.order.res(1, 0, maxtime - 1, time, time + cur_w.len - 1) == 0)
-            ++time;
 #ifdef MYDEBUG_BREAK
         __asm__ __volatile__("int3");
 #endif
+        while (cur_b.order.res(1, 0, maxtime - 1, time, time + cur_w.len - 1) == 0)
+            ++time;
         LS_res.permut.push_back(j);
+        LS_res.tsps.push_back(time);
         if (LS_res.time < time + cur_w.len)
             LS_res.time = time + cur_w.len;
         for (ID_t i = 0; i < cur_w.len; ++i)
