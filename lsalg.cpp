@@ -104,9 +104,10 @@ ID_t choose(EL_t EL)
 
 LS_res_t LS_algo(workGraph_t G, benches_t Q, ID_t maxtime)
 {
-    __asm__ __volatile__("int3");
+    
     EL_t EL;
     LS_res_t LS_res;
+    LS_res.time = 0;
     for (ID_t i = 0; i < G.size(); ++i)
     {
         EL.insert(i);
@@ -117,21 +118,27 @@ LS_res_t LS_algo(workGraph_t G, benches_t Q, ID_t maxtime)
     }
     while (!EL.empty())
     {
+
         ID_t j = choose(EL);
         work_t & cur_w = G[j];
-        ID_t time = G[j].min_time;
+        ID_t time = cur_w.min_time;
         bench_t & cur_b = Q[cur_w.type];
         while (cur_b.order.res(1, 0, maxtime - 1, time, time + cur_w.len - 1) == 0)
             ++time;
+#ifdef MYDEBUG_BREAK
+        __asm__ __volatile__("int3");
+#endif
         LS_res.permut.push_back(j);
         if (LS_res.time < time + cur_w.len)
             LS_res.time = time + cur_w.len;
         for (ID_t i = 0; i < cur_w.len; ++i)
             cur_b.order.update(1, 0, maxtime - 1, time + i, 1);
         if (cur_w.next < G.size())
+        {
             EL.insert(cur_w.next);
-        if (G[cur_w.next].min_time < time + cur_w.len)
-            G[cur_w.next].min_time = time + cur_w.len;
+            if (G[cur_w.next].min_time < time + cur_w.len)
+                G[cur_w.next].min_time = time + cur_w.len;
+        }
         EL.erase(j);
     }
     return LS_res;

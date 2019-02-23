@@ -4,7 +4,6 @@
 
 int main(int argc, char const *argv[])
 {
-    //__asm__ __volatile__("int3");
     workGraph_t G = 
     {
         { 1,  0, 70,  1 },
