@@ -1,3 +1,0 @@
-# Kirov
-
-kirov reporting
