@@ -1,6 +1,8 @@
 #include <list>
 #include <vector>
 #include <set>
+#include <cstdint>
+#include <cstddef>
 
 using int_t = int64_t;
 using ID_t = size_t;
@@ -77,7 +79,7 @@ struct LS_res_t
 
 struct work_t
 {
-    std::set<ID_t> parents;
+    //std::set<ID_t> parents;
     ID_t next;
     ID_t min_time;
     ID_t len;
@@ -92,8 +94,7 @@ struct bench_t
 
 using workGraph_t = std::vector<work_t>;
 using benches_t = std::vector<bench_t>;
-using EL_container_t = std::set;
-using EL_t = EL_container_t<ID_t>;
+using EL_t = std::set<ID_t>;
 //using EL_it_t = EL_t::iterator;
 
 ID_t choose(EL_t EL)
@@ -103,6 +104,7 @@ ID_t choose(EL_t EL)
 
 LS_res_t LS_algo(workGraph_t G, benches_t Q, ID_t maxtime)
 {
+    __asm__ __volatile__("int3");
     EL_t EL;
     LS_res_t LS_res;
     for (ID_t i = 0; i < G.size(); ++i)
@@ -126,9 +128,10 @@ LS_res_t LS_algo(workGraph_t G, benches_t Q, ID_t maxtime)
             LS_res.time = time + cur_w.len;
         for (ID_t i = 0; i < cur_w.len; ++i)
             cur_b.order.update(1, 0, maxtime - 1, time + i, 1);
-        EL.insert(cur_w.next);
+        if (cur_w.next < G.size())
+            EL.insert(cur_w.next);
         if (G[cur_w.next].min_time < time + cur_w.len)
-            G[cur_w.next].min_time = time + cur_w.len
+            G[cur_w.next].min_time = time + cur_w.len;
         EL.erase(j);
     }
     return LS_res;
