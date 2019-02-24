@@ -28,9 +28,9 @@ void single_LS()
     ID_t maxtime = 10000;
     Q[0].type = 0; Q[0].order = segtree_t(maxtime, 1);
     Q[1].type = 1; Q[1].order = segtree_t(maxtime, 1);
-    Q[2].type = 2; Q[2].order = segtree_t(maxtime, 1);
-    Q[3].type = 3; Q[3].order = segtree_t(maxtime, 1);
-    Q[4].type = 4; Q[4].order = segtree_t(maxtime, 1);
+    Q[2].type = 2; Q[2].order = segtree_t(maxtime, 2);
+    Q[3].type = 3; Q[3].order = segtree_t(maxtime, 2);
+    Q[4].type = 4; Q[4].order = segtree_t(maxtime, 2);
     LS_res_t res = LS_algo(G, Q, trivia, nullptr);
     pretty_print(res, G, Q);
 }
@@ -52,13 +52,15 @@ void ant_run()
         { 9,  0, 230, 5,  3 },
         { 10, 0, 376, 1,  4 }
     };
-    benches_t Q(5);
-    ID_t maxtime = 10000;
+    benches_t Q(7);
+    ID_t maxtime = 100000;
     Q[0].type = 0; Q[0].order = segtree_t(maxtime, 1);
     Q[1].type = 1; Q[1].order = segtree_t(maxtime, 1);
-    Q[2].type = 2; Q[2].order = segtree_t(maxtime, 1);
-    Q[3].type = 3; Q[3].order = segtree_t(maxtime, 1);
-    Q[4].type = 4; Q[4].order = segtree_t(maxtime, 1);
+    Q[2].type = 2; Q[2].order = segtree_t(maxtime, 2);
+    Q[3].type = 3; Q[3].order = segtree_t(maxtime, 2);
+    Q[4].type = 4; Q[4].order = segtree_t(maxtime, 2);
+    Q[5].type = 5; Q[5].order = segtree_t(maxtime, 1);
+    Q[6].type = 6; Q[6].order = segtree_t(maxtime, 1);
 
     ant_params_t P;
     P.alpha = 0.5;
