@@ -11,7 +11,7 @@ void pretty_print(LS_res_t & res, workGraph_t & G, benches_t & Q)
     std::cout << res.time << std::endl;
     for (ID_t i = 0; i < G.size(); ++i)
     {
-        std::cout << res.permut[i] << ' ' << res.tsps[i] << ' ' << G[res.permut[i]].len << std::endl;
+        std::cout << res.permut[i] + 1 << ' ' << G[res.permut[i]].type + 1 << ' ' << res.tsps[i] << ' ' << G[res.permut[i]].len << std::endl;
     }
     std::cout << std::endl;
     char ** benchlines = new char *[Q.size()];

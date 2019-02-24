@@ -101,9 +101,11 @@ using workGraph_t = std::vector<work_t>;
 using benches_t = std::vector<bench_t>;
 using EL_t = std::set<ID_t>;
 
-LS_res_t LS_algo(workGraph_t G, benches_t Q, ID_t (* choose)(EL_t))
+LS_res_t LS_algo(workGraph_t & G,
+                 benches_t Q,
+                 ID_t (* choose)(workGraph_t &, benches_t &, EL_t &, ID_t, void *),
+                 void * extparams)
 {
-    
     EL_t EL;
     LS_res_t LS_res;
     LS_res.time = 0;
@@ -115,10 +117,10 @@ LS_res_t LS_algo(workGraph_t G, benches_t Q, ID_t (* choose)(EL_t))
     {
         EL.erase(G[i].next);
     }
+    ID_t position = 0;
     while (!EL.empty())
     {
-
-        ID_t j = choose(EL);
+        ID_t j = choose(G, Q, EL, position, extparams);
         work_t & cur_w = G[j];
         ID_t time = cur_w.min_time;
         bench_t & cur_b = Q[cur_w.type];
@@ -144,6 +146,7 @@ LS_res_t LS_algo(workGraph_t G, benches_t Q, ID_t (* choose)(EL_t))
                 G[cur_w.next].min_time = time + cur_w.len;
         }
         EL.erase(j);
+        ++position;
     }
     return LS_res;
 }
