@@ -101,9 +101,7 @@ using workGraph_t = std::vector<work_t>;
 using benches_t = std::vector<bench_t>;
 using EL_t = std::set<ID_t>;
 
-ID_t choose(EL_t EL);
-
-LS_res_t LS_algo(workGraph_t G, benches_t Q)
+LS_res_t LS_algo(workGraph_t G, benches_t Q, ID_t (* choose)(EL_t))
 {
     
     EL_t EL;
@@ -149,12 +147,5 @@ LS_res_t LS_algo(workGraph_t G, benches_t Q)
     }
     return LS_res;
 }
-
-/*
-ID_t choose(EL_t EL)
-{
-    return *(EL.begin());
-}
-*/
 
 #endif  //LS_ALGO
