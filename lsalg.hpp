@@ -14,6 +14,7 @@ using btype_t = int;
 struct segtree_t
 {
     ID_t n;
+    btype_t max_num;
     std::vector<ID_t> t;
     void build (ID_t num, ID_t v, ID_t tl, ID_t tr)
     {
@@ -39,6 +40,7 @@ struct segtree_t
     {
         t.resize(maxtime * 4);
         n = maxtime;
+        max_num = num;
         build(num, 1, 0, n - 1);
     }
     ID_t res (ID_t v, ID_t tl, ID_t tr, ID_t l, ID_t r)
@@ -48,7 +50,7 @@ struct segtree_t
         if (l == tl && r == tr)
             return t[v];
         ID_t tm = (tl + tr) / 2;
-        return min(res (v * 2,       tl,       tm,   l,                min(r, tm   )),
+        return min(res (v * 2,       tl,       tm,   l,                min(r, tm)   ),
                    res (v * 2 + 1,   tm + 1,   tr,   max(l, tm + 1),   r           ));
     }
     ID_t res_pub(ID_t l, ID_t r)
@@ -84,6 +86,7 @@ struct LS_res_t
 
 struct work_t
 {
+    ID_t num_in;
     ID_t next;
     ID_t min_time;
     ID_t len;
@@ -101,7 +104,7 @@ using workGraph_t = std::vector<work_t>;
 using benches_t = std::vector<bench_t>;
 using EL_t = std::set<ID_t>;
 
-LS_res_t LS_algo(workGraph_t & G,
+LS_res_t LS_algo(workGraph_t G,
                  benches_t Q,
                  ID_t (* choose)(workGraph_t &, benches_t &, EL_t &, ID_t, void *),
                  void * extparams)
@@ -141,7 +144,9 @@ LS_res_t LS_algo(workGraph_t & G,
             cur_b.order.update_pub(time + i, 1);
         if (cur_w.next < G.size())
         {
-            EL.insert(cur_w.next);
+            --G[cur_w.next].num_in;
+            if (G[cur_w.next].num_in == 0)
+                EL.insert(cur_w.next);
             if (G[cur_w.next].min_time < time + cur_w.len)
                 G[cur_w.next].min_time = time + cur_w.len;
         }
