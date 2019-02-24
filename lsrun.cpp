@@ -4,6 +4,11 @@
 #include <iostream>
 #include <cstring>
 
+ID_t choose(EL_t EL)
+{
+    return *(EL.begin());
+}
+
 int main(int argc, char const *argv[])
 {
     workGraph_t G = 
