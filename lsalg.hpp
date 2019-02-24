@@ -91,6 +91,7 @@ struct work_t
     ID_t min_time;
     ID_t len;
     ID_t prep;
+    ID_t quant;
     btype_t type;
 };
 
@@ -144,11 +145,15 @@ LS_res_t LS_algo(workGraph_t G,
             cur_b.order.update_pub(time + i, 1);
         if (cur_w.next < G.size())
         {
-            --G[cur_w.next].num_in;
-            if (G[cur_w.next].num_in == 0)
+            work_t & cur_n = G[cur_w.next];
+            --cur_n.num_in;
+            if (cur_n.num_in == 0)
                 EL.insert(cur_w.next);
-            if (G[cur_w.next].min_time < time + cur_w.len)
-                G[cur_w.next].min_time = time + cur_w.len;
+            ID_t newtime = time + cur_w.len + cur_n.quant - cur_n.len + cur_n.prep;
+            if (newtime < time + cur_w.prep + cur_w.quant)
+                newtime = time + cur_w.prep + cur_w.quant;
+            if (cur_n.min_time < time + cur_w.len)
+                cur_n.min_time = time + cur_w.len;
         }
         EL.erase(j);
         ++position;
