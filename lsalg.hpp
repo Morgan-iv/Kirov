@@ -1,3 +1,6 @@
+#ifndef LS_ALGO
+#define LS_ALGO
+
 #include <list>
 #include <vector>
 #include <set>
@@ -7,14 +10,6 @@
 using int_t = int64_t;
 using ID_t = size_t;
 using btype_t = int;
-
-/*
-struct range_t
-{
-    ID_t b;
-    ID_t e;
-};
-*/
 
 struct segtree_t
 {
@@ -43,7 +38,8 @@ struct segtree_t
     segtree_t(ID_t maxtime = 1, ID_t num = 1)
     {
         t.resize(maxtime * 4);
-        build(num, 1, 0, maxtime - 1);
+        n = maxtime;
+        build(num, 1, 0, n - 1);
     }
     ID_t res (ID_t v, ID_t tl, ID_t tr, ID_t l, ID_t r)
     {
@@ -54,6 +50,10 @@ struct segtree_t
         ID_t tm = (tl + tr) / 2;
         return min(res (v * 2,       tl,       tm,   l,                min(r, tm   )),
                    res (v * 2 + 1,   tm + 1,   tr,   max(l, tm + 1),   r           ));
+    }
+    ID_t res_pub(ID_t l, ID_t r)
+    {
+        return res(1, 0, n - 1, l, r);
     }
     void update (ID_t v, ID_t tl, ID_t tr, ID_t pos, ID_t change)
     {
@@ -69,6 +69,10 @@ struct segtree_t
             t[v] = min(t[v * 2], t[v * 2 + 1]);
         }
     }
+    void update_pub(ID_t pos, ID_t change)
+    {
+        update(1, 0, n - 1, pos, change);
+    }
 };
 
 struct LS_res_t
@@ -80,10 +84,10 @@ struct LS_res_t
 
 struct work_t
 {
-    //std::set<ID_t> parents;
     ID_t next;
     ID_t min_time;
     ID_t len;
+    ID_t prep;
     btype_t type;
 };
 
@@ -96,14 +100,10 @@ struct bench_t
 using workGraph_t = std::vector<work_t>;
 using benches_t = std::vector<bench_t>;
 using EL_t = std::set<ID_t>;
-//using EL_it_t = EL_t::iterator;
 
-ID_t choose(EL_t EL)
-{
-    return *(EL.begin());
-}
+ID_t choose(EL_t EL);
 
-LS_res_t LS_algo(workGraph_t G, benches_t Q, ID_t maxtime)
+LS_res_t LS_algo(workGraph_t G, benches_t Q)
 {
     
     EL_t EL;
@@ -124,17 +124,21 @@ LS_res_t LS_algo(workGraph_t G, benches_t Q, ID_t maxtime)
         work_t & cur_w = G[j];
         ID_t time = cur_w.min_time;
         bench_t & cur_b = Q[cur_w.type];
+
 #ifdef MYDEBUG_BREAK
         __asm__ __volatile__("int3");
 #endif
-        while (cur_b.order.res(1, 0, maxtime - 1, time, time + cur_w.len - 1) == 0)
+
+        if (time >= cur_w.prep)
+            time -= cur_w.prep;
+        while (cur_b.order.res_pub(time, time + cur_w.len - 1) == 0)
             ++time;
         LS_res.permut.push_back(j);
         LS_res.tsps.push_back(time);
         if (LS_res.time < time + cur_w.len)
             LS_res.time = time + cur_w.len;
         for (ID_t i = 0; i < cur_w.len; ++i)
-            cur_b.order.update(1, 0, maxtime - 1, time + i, 1);
+            cur_b.order.update_pub(time + i, 1);
         if (cur_w.next < G.size())
         {
             EL.insert(cur_w.next);
@@ -145,3 +149,12 @@ LS_res_t LS_algo(workGraph_t G, benches_t Q, ID_t maxtime)
     }
     return LS_res;
 }
+
+/*
+ID_t choose(EL_t EL)
+{
+    return *(EL.begin());
+}
+*/
+
+#endif  //LS_ALGO
